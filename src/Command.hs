@@ -8,4 +8,5 @@ data Command =
     CreateSpreadsheet |
     ShowSpreadsheet |
     Exit |
+    Help |
     UnknownCommand String

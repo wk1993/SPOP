@@ -12,6 +12,7 @@ parse unparsedCommand = case unparsedCommand of
     "create" -> CreateSpreadsheet
     "show" -> ShowSpreadsheet
     "exit" -> Exit
+    "help" -> Help
     unparsedCommand -> UnknownCommand unparsedCommand
 
 

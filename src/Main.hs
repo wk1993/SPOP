@@ -25,8 +25,20 @@ main = do
         Exit -> do 
             putStrLn ("Bye, bye...")
             exitSuccess 
+        Help -> do 
+            putStrLn ("Printing help...")
+            printHelp
         UnknownCommand unknownCommand -> do 
-            putStrLn ("Command " ++ unknownCommand ++ " is unknown, try one more time...")
+            putStrLn ("Command " ++ unknownCommand ++ " is unknown, type 'help' to show help page...")
     hFlush stdout
     main
 
+printHelp = do 
+    putStrLn ("\nAvailable commands:")
+    putStrLn ("open filename      - open spreadsheet from file")
+    putStrLn ("save filename      - save spreadsheet to file")
+    putStrLn ("create             - create new spreadsheet")
+    putStrLn ("show               - show content of actual spreadsheet")
+    putStrLn ("exit               - close the program")
+    putStrLn ("help               - show this help page")
+    putStrLn ("")
