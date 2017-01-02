@@ -13,7 +13,7 @@ parse unparsedCommand = case unparsedCommand of
     "show" -> ShowSpreadsheet
     "exit" -> Exit
     "help" -> Help
-    unparsedCommand -> UnknownCommand unparsedCommand
+    unparsedCommand -> UnknownCommand
 
 
 

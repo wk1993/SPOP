@@ -9,4 +9,4 @@ data Command =
     ShowSpreadsheet |
     Exit |
     Help |
-    UnknownCommand String
+    UnknownCommand
