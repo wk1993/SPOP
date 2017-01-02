@@ -5,4 +5,7 @@ module Command (
 data Command =
     OpenSpreadsheet String |
     SaveSpreadsheet String |
-    Exit
+    CreateSpreadsheet |
+    ShowSpreadsheet |
+    Exit |
+    UnknownCommand String

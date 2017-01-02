@@ -16,9 +16,17 @@ main = do
         SaveSpreadsheet file -> do 
             putStrLn ("Saving spreadsheet to " ++ file ++ " file...")
             -- TODO --
+        CreateSpreadsheet -> do 
+            putStrLn ("Creating a new spreadsheet...")
+            -- TODO --
+        ShowSpreadsheet -> do 
+            putStrLn ("Showing spreadsheet...")
+            -- TODO --
         Exit -> do 
             putStrLn ("Bye, bye...")
             exitSuccess 
+        UnknownCommand unknownCommand -> do 
+            putStrLn ("Command " ++ unknownCommand ++ " is unknown, try one more time...")
     hFlush stdout
     main
 
