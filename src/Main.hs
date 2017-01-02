@@ -10,8 +10,14 @@ main = do
     let
         command = parse unparsedCommand
     case command of 
+        OpenSpreadsheet file -> do 
+            putStrLn ("Opening spreadsheet from " ++ file ++ " file...")
+            -- TODO --
+        SaveSpreadsheet file -> do 
+            putStrLn ("Saving spreadsheet to " ++ file ++ " file...")
+            -- TODO --
         Exit -> do 
-            putStr "Bye, bye...\n"
+            putStrLn ("Bye, bye...")
             exitSuccess 
     hFlush stdout
     main
