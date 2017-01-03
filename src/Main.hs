@@ -22,6 +22,12 @@ iterateLoop actualSpreadSheet = do
         SaveSpreadsheet file -> do 
             putStrLn ("Saving spreadsheet to " ++ file ++ " file...")
             -- TODO --
+        RemoveColumn id -> do 
+            putStrLn ("Removing column " ++ id ++ "...")
+            -- TODO --
+        RemoveRow id -> do 
+            putStrLn ("Removing row " ++ id ++ "...")
+            -- TODO --
         CreateSpreadsheet -> do 
             putStrLn ("Creating a new spreadsheet...")
             -- TODO --
@@ -43,6 +49,8 @@ printAvailableCommands = do
     putStrLn ("\nAvailable commands:")
     putStrLn ("open filename      - open spreadsheet from file")
     putStrLn ("save filename      - save spreadsheet to file")
+    putStrLn ("remove column id   - remove column with specified id")
+    putStrLn ("remove row id      - remove row with specified id")
     putStrLn ("create             - create new spreadsheet")
     putStrLn ("show               - show content of actual spreadsheet")
     putStrLn ("exit               - close the program")

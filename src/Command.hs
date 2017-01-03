@@ -5,6 +5,8 @@ module Command (
 data Command =
     OpenSpreadsheet String |
     SaveSpreadsheet String |
+    RemoveColumn String |
+    RemoveRow String |
     CreateSpreadsheet |
     ShowSpreadsheet |
     Exit |
