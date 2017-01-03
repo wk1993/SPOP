@@ -4,6 +4,12 @@ import Command
 import Parser
 
 main = do
+    putStrLn ("Welcome to SPOP project")
+    putStrLn ("Authors: Krystian Kieczka, Wikor Kusmirek")
+    putStrLn ("To print list of available commands, type 'help'")
+    iterateLoop null
+
+iterateLoop actualSpreadSheet = do
     putStr "% "
     hFlush stdout
     unparsedCommand <- getLine
@@ -31,7 +37,7 @@ main = do
         UnknownCommand -> do 
             putStrLn ("Unknown command, type 'help' to show help page...")
     hFlush stdout
-    main
+    iterateLoop actualSpreadSheet
 
 printAvailableCommands = do 
     putStrLn ("\nAvailable commands:")
