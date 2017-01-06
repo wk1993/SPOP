@@ -1,6 +1,7 @@
 module SpreadsheetOps (
     createSpreadsheet, openSpreadsheet, saveSpreadsheet, closeSpreadsheet,
-    getValue, calculateValue, setValue
+    getValue, calculateValue, setValue,
+    getCellsRect
 ) where
 
 import System.IO

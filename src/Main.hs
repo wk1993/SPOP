@@ -2,12 +2,29 @@ import System.IO
 import System.Exit
 import Command
 import Parser
+import Model
+import Show
+
+cellValA =  StringVal "a"
+cellValB =  StringVal "b"
+cellValC =  StringVal "c"
+cellValD =  StringVal "d"
+cellValE =  StringVal "e"
+
+cellA = Cell 'A' 1 cellValA
+cellB = Cell 'A' 2 cellValB
+cellC = Cell 'B' 1 cellValC
+cellD = Cell 'B' 2 cellValD
+cellE = Cell 'C' 3 cellValE
+
+spreadsheet = Spreadsheet Nothing [cellA, cellB, cellC, cellD, cellE]
+
 
 main = do
     putStrLn ("Welcome to SPOP project")
     putStrLn ("Authors: Krystian Kieczka, Wikor Kusmirek")
     putStrLn ("To print list of available commands, type 'help'")
-    iterateLoop null
+    iterateLoop spreadsheet
 
 iterateLoop actualSpreadSheet = do
     putStr "% "
@@ -33,26 +50,16 @@ iterateLoop actualSpreadSheet = do
             -- TODO --
         ShowSpreadsheet -> do 
             putStrLn ("Showing spreadsheet...")
-            -- TODO --
+            showSpreadsheet actualSpreadSheet
         Exit -> do 
             putStrLn ("Bye, bye...")
             exitSuccess 
         Help -> do 
             putStrLn ("Printing help...")
-            printAvailableCommands
+            showAvailableCommands
         UnknownCommand -> do 
             putStrLn ("Unknown command, type 'help' to show help page...")
     hFlush stdout
     iterateLoop actualSpreadSheet
 
-printAvailableCommands = do 
-    putStrLn ("\nAvailable commands:")
-    putStrLn ("open filename      - open spreadsheet from file")
-    putStrLn ("save filename      - save spreadsheet to file")
-    putStrLn ("remove column id   - remove column with specified id")
-    putStrLn ("remove row id      - remove row with specified id")
-    putStrLn ("create             - create new spreadsheet")
-    putStrLn ("show               - show content of actual spreadsheet")
-    putStrLn ("exit               - close the program")
-    putStrLn ("help               - show help page")
-    putStrLn ("")
+
