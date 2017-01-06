@@ -65,4 +65,4 @@ instance Ord Cell where
 data Spreadsheet = Spreadsheet {
     io_handle :: Maybe Handle,
     cells :: [Cell]
-}
+} | None

@@ -4,7 +4,9 @@ import Command
 import Parser
 import Model
 import Show
+import SpreadsheetOps
 
+{- 
 cellValA =  StringVal "a"
 cellValB =  StringVal "b"
 cellValC =  StringVal "c"
@@ -18,13 +20,13 @@ cellD = Cell 'B' 2 cellValD
 cellE = Cell 'C' 3 cellValE
 
 spreadsheet = Spreadsheet Nothing [cellA, cellB, cellC, cellD, cellE]
-
+-}
 
 main = do
     putStrLn ("Welcome to SPOP project")
     putStrLn ("Authors: Krystian Kieczka, Wikor Kusmirek")
     putStrLn ("To print list of available commands, type 'help'")
-    iterateLoop spreadsheet
+    iterateLoop None
 
 iterateLoop actualSpreadSheet = do
     putStr "% "
@@ -47,7 +49,7 @@ iterateLoop actualSpreadSheet = do
             -- TODO --
         CreateSpreadsheet -> do 
             putStrLn ("Creating a new spreadsheet...")
-            -- TODO --
+            iterateLoop createSpreadsheet
         ShowSpreadsheet -> do 
             putStrLn ("Showing spreadsheet...")
             showSpreadsheet actualSpreadSheet
