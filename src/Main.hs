@@ -37,10 +37,12 @@ iterateLoop actualSpreadSheet = do
     case command of 
         OpenSpreadsheet file -> do 
             putStrLn ("Opening spreadsheet from " ++ file ++ " file...")
-            -- TODO --
+            actualSpreadSheet <- (openSpreadsheet file)
+            iterateLoop actualSpreadSheet
         SaveSpreadsheet file -> do 
             putStrLn ("Saving spreadsheet to " ++ file ++ " file...")
-            -- TODO --
+            saveSpreadsheet actualSpreadSheet file
+            iterateLoop actualSpreadSheet
         RemoveColumn id -> do 
             putStrLn ("Removing column " ++ id ++ "...")
             -- TODO --

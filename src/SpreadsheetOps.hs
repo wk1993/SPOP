@@ -28,8 +28,8 @@ openSpreadsheet filename = do
                             return (Spreadsheet (Just handle) parsed_cells)
 
 -- saves spreadsheet to file
-saveSpreadsheet :: Spreadsheet -> IO ()
-saveSpreadsheet s = error "Not implemented"
+saveSpreadsheet :: Spreadsheet -> [Char] -> IO ()
+saveSpreadsheet s filename = error "Not implemented"
 
 -- closes spreadsheet file
 closeSpreadsheet :: Spreadsheet -> IO ()
