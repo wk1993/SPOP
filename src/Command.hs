@@ -9,7 +9,7 @@ data Command =
     RemoveRow Int |
     AddColumn |
     AddRow |
-    ModifyCell Char Int |
+    ModifyCell |
     CreateSpreadsheet |
     ShowSpreadsheet |
     Exit |

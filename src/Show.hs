@@ -54,6 +54,7 @@ showAvailableCommands = do
     putStrLn ("remove row id      - remove row with specified id, id should be a number")
     putStrLn ("add column         - add a new column to the spreadsheet, id for this column will be designated automatically")
     putStrLn ("add row            - add a new row to the spreadsheet, id for this row will be designated automatically")
+    putStrLn ("modify cell        - modify value for specified (in next steps) cell")
     putStrLn ("create             - create new spreadsheet")
     putStrLn ("show               - show content of actual spreadsheet")
     putStrLn ("exit               - close the program")

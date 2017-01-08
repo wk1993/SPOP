@@ -59,8 +59,38 @@ iterateLoop actualSpreadSheet = do
             putStrLn ("Adding a new row to spreadsheet...")
             actualSpreadSheet <- (addRow actualSpreadSheet)
             iterateLoop actualSpreadSheet
-        ModifyCell column row -> do 
-            putStrLn ("Modifing cell " ++ (charToString column) ++ show row ++ "...")
+        ModifyCell -> do 
+            putStr "column: "
+            hFlush stdout
+            line <- getLine
+            if isSingleLetter line then 
+                putStrLn ("Column value is valid...") 
+            else do
+                putStrLn ("Column value is invalid, it should be single character")
+                iterateLoop actualSpreadSheet
+            let
+                column = (head (read ("\"" ++ line ++ "\"") :: String))
+            putStr "row: "
+            hFlush stdout
+            line <- getLine
+            if isValidInt line then 
+                putStrLn ("Row value is valid...") 
+            else do
+                putStrLn ("Row value is invalid, it should be integer")
+                iterateLoop actualSpreadSheet
+            let
+                row = read line :: Int
+            putStr "new value: "
+            hFlush stdout
+            line <- getLine
+            if isValidCellValue line then 
+                putStrLn ("New value is valid...") 
+            else do
+                putStrLn ("New value is invalid...")
+                iterateLoop actualSpreadSheet
+            let
+                --newValue = read line :: Int
+            putStrLn ("Modifing cell " ++ (charToString column) ++ show row ++ " with value equal to " ++ line ++ " ...")
             -- TODO --
         CreateSpreadsheet -> do 
             putStrLn ("Creating a new spreadsheet...")
