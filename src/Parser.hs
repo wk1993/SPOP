@@ -14,6 +14,7 @@ parse unparsedCommand = case unparsedCommand of
     'r':'e':'m':'o':'v':'e':' ':'r':'o':'w':' ':id -> if (readMaybe id :: Maybe Int) /= Nothing then RemoveRow (read id :: Int) else UnknownCommand
     "add column" -> AddColumn
     "add row" -> AddRow
+    'm':'o':'d':'i':'f':'y':' ':'c':'e':'l':'l':' ':id -> ModifyCell 'A' 3
     "create" -> CreateSpreadsheet
     "show" -> ShowSpreadsheet
     "exit" -> Exit

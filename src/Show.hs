@@ -1,6 +1,7 @@
 module Show (
     showSpreadsheet,
-    showAvailableCommands
+    showAvailableCommands,
+    charToString
 ) where
 
 import Data.List
@@ -8,6 +9,9 @@ import Data.Maybe
 import Data.Char
 import Model
 import SpreadsheetOps
+
+charToString :: Char -> String
+charToString c = [c]
 
 showSpreadsheet :: Spreadsheet -> IO ()
 showSpreadsheet None = putStrLn ("Your spreadsheet is not set, create or read it from file!")
@@ -26,16 +30,16 @@ showSpreadsheetLoop spreadsheet actualRowId lastRowId nameOfColumns = do
 
 showSpreadsheetRow :: Int -> [Cell] -> [Char] -> IO ()
 showSpreadsheetRow rowId cells nameOfColumns = do
-    putStr $ (show rowId ++ "\t")
+    putStr $ (show rowId ++ "\t\t")
     mapM_ (\column -> if elem column [col cell | cell <- cells] 
-                      then putStr $ (show (val (cells!!(last((findPos cells column))))) ++ "\t") 
-                      else putStr $ "\t") nameOfColumns
+                      then putStr $ (show (val (cells!!(last((findPos cells column))))) ++ "\t\t") 
+                      else putStr $ "\t\t") nameOfColumns
     putStr "\n"
 
 showSpreadsheetNameOfColumns :: [Char] -> IO ()
 showSpreadsheetNameOfColumns nameOfColumns = do
-    putStr $ ("\t")
-    mapM_ (\nameOfColumn -> (putStr $ (show (nameOfColumn) ++ "\t"))) (sort nameOfColumns)
+    putStr $ ("\t\t")
+    mapM_ (\nameOfColumn -> (putStr $ (charToString (nameOfColumn) ++ "\t\t"))) (sort nameOfColumns)
     putStr "\n"
 
 findPos :: [Cell] -> Char -> [Int]

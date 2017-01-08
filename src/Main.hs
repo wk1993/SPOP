@@ -59,6 +59,9 @@ iterateLoop actualSpreadSheet = do
             putStrLn ("Adding a new row to spreadsheet...")
             actualSpreadSheet <- (addRow actualSpreadSheet)
             iterateLoop actualSpreadSheet
+        ModifyCell column row -> do 
+            putStrLn ("Modifing cell " ++ (charToString column) ++ show row ++ "...")
+            -- TODO --
         CreateSpreadsheet -> do 
             putStrLn ("Creating a new spreadsheet...")
             iterateLoop createSpreadsheet
