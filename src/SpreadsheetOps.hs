@@ -36,12 +36,14 @@ saveSpreadsheet s filename = error "Not implemented"
 closeSpreadsheet :: Spreadsheet -> IO ()
 closeSpreadsheet s = if isJust (io_handle s) then hClose (fromJust (io_handle s)) else return ()
 
+parseSpreadsheetFile :: [Char] -> IO [Cell] -- TODO shouldn't it be just '[Cell]' without IO?
+parseSpreadsheetFile content = error "Not implemented"
 
 -- ---------------------------------------------------------------------------
 -- Cells operations
 -- ---------------------------------------------------------------------------
 
--- returns value of cell (i,j) without calculating it
+-- returns value of cell (c,r) without calculating it
 getValue :: Spreadsheet -> Char -> Int -> Maybe CellVal
 getValue s c r = if filtered_len == 1 then Just (val (head filtered))
                     else if filtered_len == 0 then Nothing
@@ -59,10 +61,21 @@ getCellsRect s begc begr countc countr = sort (filter filter_fun (cells s))
                                             maxr = begr+countr
                                             filter_fun = (\x -> inRange (col x) begc maxc && inRange (row x) begr maxr)
 
--- calculates value from cell (c,r). For Cell with value StringVal and without value, returns 0.0.
+-- calculates value from cell (c,r). For Cell without value, returns 0.0. For StringVal throws error.
 -- In case of errors in computation returns NaN
+-- TODO test it
 calculateValue :: Spreadsheet -> Char -> Int -> Double
-calculateValue s c r =  error "Not implemented"
+calculateValue s c r =  let cell = getValue s c r in
+                        case cell of
+                            Nothing -> 0.0
+                            Just (NumVal a) -> a
+                            Just (StringVal _) -> error "String value"
+                            Just (SumFunc range _) -> calculateFunc s (+) 0 range
+                            Just (MulFunc range _) -> calculateFunc s (*) 1 range
+                            Just (AvgFunc range _) -> (calculateFunc s (+) 0 range) / (fromIntegral (length range))
+
+calculateFunc :: Spreadsheet -> (Double -> Double -> Double) -> Double -> [(Char, Int)] -> Double
+calculateFunc s f neutral range = foldl f neutral (map (\x -> calculateValue s (fst x) (snd x)) range)
 
 -- sets value of cell (c,r) to v.
 -- if a cell already exists on spreadsheet list - modifies its value
@@ -79,10 +92,8 @@ setValue s c r v = if exists then
                                 else if (length filtered == 0) then False
                                 else error "Inconsistent spreadsheet state: more than one cell with given (col,row)"
 
-
-
-parseSpreadsheetFile :: [Char] -> IO [Cell] -- TODO shouldn't it be just '[Cell]' without IO?
-parseSpreadsheetFile content = error "Not implemented"
+--parseRange :: String -> [(Char, Int)]
+--parseRange str =
 
 -- remove column from spreadsheet
 removeColumn :: Spreadsheet -> Char -> IO Spreadsheet
@@ -123,7 +134,7 @@ inRange a lower upper = (a >= lower) && (a <= upper)
 -- Tests
 -- ---------------------------------------------------------------------------
 
-basicTest = getValue (setValue (createSpreadsheet) 'a' 1 (StringVal "abc")) 'a' 1
+-- basicTest = getValue (setValue (createSpreadsheet) 'a' 1 (StringVal "abc")) 'a' 1
 
 
 
