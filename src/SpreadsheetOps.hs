@@ -1,7 +1,8 @@
 module SpreadsheetOps (
     createSpreadsheet, openSpreadsheet, saveSpreadsheet, closeSpreadsheet,
     getValue, calculateValue, setValue,
-    getCellsRect
+    getCellsRect,
+    removeColumn, removeRow
 ) where
 
 import System.IO
@@ -83,6 +84,17 @@ setValue s c r v = if exists then
 parseSpreadsheetFile :: [Char] -> IO [Cell] -- TODO shouldn't it be just '[Cell]' without IO?
 parseSpreadsheetFile content = error "Not implemented"
 
+-- remove column from spreadsheet
+removeColumn :: Spreadsheet -> Char -> IO Spreadsheet
+removeColumn s c = do
+                    return (s)
+                    -- TODO --
+
+-- remove row from spreadsheet
+removeRow :: Spreadsheet -> Int -> IO Spreadsheet
+removeRow s r = do
+                    return (s)
+                    -- TODO --
 
 -- ---------------------------------------------------------------------------
 -- Utils
