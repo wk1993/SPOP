@@ -2,7 +2,8 @@ module SpreadsheetOps (
     createSpreadsheet, openSpreadsheet, saveSpreadsheet, closeSpreadsheet,
     getValue, calculateValue, setValue,
     getCellsRect,
-    removeColumn, removeRow, addColumn, addRow
+    removeColumn, removeRow, addColumn, addRow,
+    modifyCell
 ) where
 
 import System.IO
@@ -116,6 +117,12 @@ addColumn s = do
 -- add a new row to spreadsheet
 addRow :: Spreadsheet -> IO Spreadsheet
 addRow s = do
+            return (s)
+            -- TODO --
+
+-- modify cell value
+modifyCell :: Spreadsheet -> Char -> Int -> CellVal -> IO Spreadsheet
+modifyCell s c r v = do
             return (s)
             -- TODO --
 

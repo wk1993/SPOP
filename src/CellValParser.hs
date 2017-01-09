@@ -79,7 +79,17 @@ listElement = do
                       return [(col, read row)]
 
 generateRange :: Char -> Int -> Char -> Int -> [(Char, Int)]
-generateRange cb rb ce re = [('X',123)] -- TODO
+generateRange cb rb ce re = do
+                                if re > rb then 
+                                    if ce > cb then
+                                        [(c, r) | c <- [cb .. ce], r <- [rb .. re]]
+                                    else 
+                                        [(c, r) | c <- [ce .. cb], r <- [rb .. re]]
+                                else 
+                                    if ce > cb then
+                                        [(c, r) | c <- [cb .. ce], r <- [re .. rb]]
+                                    else 
+                                        [(c, r) | c <- [ce .. cb], r <- [re .. rb]]
 
 number :: Parser Double
 number = P (\inp -> case reads inp :: [(Double, String)] of

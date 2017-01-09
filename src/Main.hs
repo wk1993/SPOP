@@ -5,6 +5,7 @@ import Parser
 import Model
 import Show
 import SpreadsheetOps
+import CellValParser
 
 {- 
 cellValA =  StringVal "a"
@@ -24,7 +25,7 @@ spreadsheet = Spreadsheet Nothing [cellA, cellB, cellC, cellD, cellE]
 
 main = do
     putStrLn ("Welcome to SPOP project")
-    putStrLn ("Authors: Krystian Kieczka, Wikor Kusmirek")
+    putStrLn ("Authors: Krystian Kieczka, Wiktor Kusmirek")
     putStrLn ("To print list of available commands, type 'help'")
     iterateLoop None
 
@@ -89,9 +90,10 @@ iterateLoop actualSpreadSheet = do
                 putStrLn ("New value is invalid...")
                 iterateLoop actualSpreadSheet
             let
-                --newValue = read line :: Int
-            putStrLn ("Modifing cell " ++ (charToString column) ++ show row ++ " with value equal to " ++ line ++ " ...")
-            -- TODO --
+                newCellValue = evalFromString line
+            putStrLn ("Modifing cell " ++ (charToString column) ++ show row ++ " with value equal to " ++ (show newCellValue) ++ " ...")
+            actualSpreadSheet <- (modifyCell actualSpreadSheet column row newCellValue)
+            iterateLoop actualSpreadSheet
         CreateSpreadsheet -> do 
             putStrLn ("Creating a new spreadsheet...")
             iterateLoop createSpreadsheet
