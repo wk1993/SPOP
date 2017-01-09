@@ -10,12 +10,13 @@ import System.IO
 -- following types of values:
 -- - simple strings (e.g. "Total sum:")
 -- - double values (e.g. 1.234)
--- - sum function: "sum(<range>)"
--- - multiplication function: "mul(<range>)"
--- - average function: "avg(<range>)"
+-- - sum function: "=sum(<range>)"
+-- - multiplication function: "=mul(<range>)"
+-- - average function: "=avg(<range>)"
 -- where <range> is defined as in popular spreadsheets software: it contains semicolon
 -- separated cell descriptions which can describe a single cell (e.g. "A1") or range
--- (e.g. "A2:B4"), e.g. "A4;B3;A8:B14;C5"
+-- (e.g. "A2:B4"), e.g. "A4;B3;A8:B14;C5".
+-- Function names ("sum", "avg", "mul") are case insensitive.
 --
 -- Showing this data type doesn't perform any computation, use SpreadsheetOps::calculateValue
 -- to get computed value of a cell.
@@ -24,15 +25,15 @@ import System.IO
 data CellVal = StringVal String
                | NumVal Double
                -- functions take list of cells coordinates and the string typed by user (used when showing)
-               | SumFunc [(Char, Int)] String
-               | MulFunc [(Char, Int)] String
-               | AvgFunc [(Char, Int)] String
+               | SumFunc { range :: [(Char, Int)], str :: String}
+               | MulFunc { range :: [(Char, Int)], str :: String}
+               | AvgFunc { range :: [(Char, Int)], str :: String}
 
-instance Show CellVal where
-    show (StringVal a) = a
-    show (NumVal a) = show a
-    show (SumFunc _ s) = s
-    show (MulFunc _ s) = s
+instance Show CellVal where -- TODO restore after debugging
+    show (StringVal a) = "str " ++ a                            -- a
+    show (NumVal a) = "num " ++ show a                          -- show a
+    show (SumFunc t s) = "sum " ++ show t ++ ", txt: " ++ s     -- s
+    show (MulFunc t s) = "mul " ++ show t ++ ", txt: " ++ s     -- s
     show (AvgFunc _ s) = s
 
 -- ---------------------------------------------------------------------------
