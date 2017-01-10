@@ -41,7 +41,7 @@ instance Show CellVal where -- TODO restore after debugging
 --
 -- Cell - type representing a single cell in spreadsheet. It contains:
 -- - col - column coordinate. Should be 'A'-'Z'
--- - row - row coordinate. A positive, non-zero integer.where
+-- - row - row coordinate. An integer from range [1,100].
 -- - val - value of this cell
 --
 

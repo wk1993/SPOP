@@ -1,5 +1,5 @@
 module SpreadsheetOps (
-    createSpreadsheet, openSpreadsheet, saveSpreadsheet, closeSpreadsheet,
+    createSpreadsheet, openSpreadsheet, saveSpreadsheet,
     getValue, calculateValue, setValue,
     getCellsRect,
     removeColumn, removeRow, addColumn, addRow,
@@ -79,6 +79,7 @@ calculateFunc s f neutral _range = foldl f neutral (map (\x -> calculateValue s 
 -- sets value of cell (c,r) to v.
 -- if a cell already exists on spreadsheet list - modifies its value
 -- else - adds new cell to spreadsheet's cells list (at the end)
+-- TODO removing cell if its value is (StringVal "")
 setValue :: Spreadsheet -> Char -> Int -> CellVal -> Spreadsheet
 setValue s c r v = if exists then
                        -- replace existing cell with new one (containing new value)
@@ -95,30 +96,54 @@ setValue s c r v = if exists then
 --parseRange str =
 
 -- remove column from spreadsheet
+-- TODO protect from indices out of bounds
+-- TODO test it
 removeColumn :: Spreadsheet -> Char -> IO Spreadsheet
-removeColumn s c = do
-                    return (s)
-                    -- TODO --
+removeColumn s c = return s { cells = map moveOneLeft filtered }
+                   where
+                       filtered = filter (\x -> (col x) /= c) (cells s)
+                       moveOneLeft = \x -> if (col x) > c then (x {col = chr(ord(col x)-1)}) else x
 
 -- remove row from spreadsheet
+-- TODO protect from indices out of bounds
+-- TODO test it
 removeRow :: Spreadsheet -> Int -> IO Spreadsheet
-removeRow s r = do
-                    return (s)
-                    -- TODO --
+removeRow s r = return s { cells = map moveOneUp filtered }
+                   where
+                       filtered = filter (\x -> (row x) /= r) (cells s)
+                       moveOneUp = \x -> if (row x) > r then (x {row = (row x)-1}) else x
 
 -- add a new column to spreadsheet
-addColumn :: Spreadsheet -> IO Spreadsheet
-addColumn s = do
-               return (s)
-               -- TODO --
+-- The index 'ind' indicates what address will the newly created column have,
+-- i.e. addColumn s 'B' adds a new column 'B', moving previous column 'B' and
+-- all the successors one column further to the right. If there are cells in
+-- column 'Z', an error is thrown.
+-- TODO protect from indices out of bounds
+-- TODO test it
+addColumn :: Spreadsheet -> Char -> IO Spreadsheet
+addColumn s ind = if (any (\x -> (col x) == 'Z') (cells s)) then
+                      error "Non-empty cells in last column"
+                  else
+                      return s { cells = map moveOneRight (cells s) }
+                      where
+                          moveOneRight = \x -> if (col x) >= ind then (x {col = chr(ord(col x)+1)}) else x
 
 -- add a new row to spreadsheet
-addRow :: Spreadsheet -> IO Spreadsheet
-addRow s = do
-            return (s)
-            -- TODO --
+-- The index 'ind' indicates what address will the newly created row have,
+-- i.e. addRow s 3 adds a new column 3, moving previous column 3 and
+-- all the successors one column down. If there are cells in column 100, an error is thrown.
+-- TODO protect from indices out of bounds
+-- TODO test it
+addRow :: Spreadsheet -> Int -> IO Spreadsheet
+addRow s ind = if (any (\x -> (row x) == 100) (cells s)) then
+                   error "Non-empty cells in last row"
+               else
+                   return s { cells = map moveOneDown (cells s) }
+                   where
+                       moveOneDown = \x -> if (row x) >= ind then (x {row = (row x)+1}) else x
 
 -- modify cell value
+-- TODO protect from indices out of bounds
 modifyCell :: Spreadsheet -> Char -> Int -> CellVal -> IO Spreadsheet
 modifyCell s c r v = return (setValue s c r v)
 
