@@ -10,8 +10,10 @@ import System.IO
 import Data.Maybe
 import Data.Char
 import Data.List
+import Data.Binary
 
 import Model
+import Serialization
 
 -- ---------------------------------------------------------------------------
 -- Spreadsheet operations
@@ -24,21 +26,17 @@ createSpreadsheet = Spreadsheet Nothing []
 -- opens spreadsheet from a file
 openSpreadsheet :: [Char] -> IO Spreadsheet
 openSpreadsheet filename = do
-                            handle <- openFile filename ReadWriteMode
-                            contents <- hGetContents handle
-                            parsed_cells <- parseSpreadsheetFile contents
-                            return (Spreadsheet (Just handle) parsed_cells)
+                               s <- decodeFile filename
+                               return s
 
 -- saves spreadsheet to file
 saveSpreadsheet :: Spreadsheet -> [Char] -> IO ()
-saveSpreadsheet s filename = error "Not implemented"
+saveSpreadsheet s filename = encodeFile filename s
 
 -- closes spreadsheet file
-closeSpreadsheet :: Spreadsheet -> IO ()
-closeSpreadsheet s = if isJust (io_handle s) then hClose (fromJust (io_handle s)) else return ()
+--closeSpreadsheet :: Spreadsheet -> IO ()
+--closeSpreadsheet s = if isJust (io_handle s) then hClose (fromJust (io_handle s)) else return ()
 
-parseSpreadsheetFile :: [Char] -> IO [Cell] -- TODO shouldn't it be just '[Cell]' without IO?
-parseSpreadsheetFile content = error "Not implemented"
 
 -- ---------------------------------------------------------------------------
 -- Cells operations
@@ -71,12 +69,12 @@ calculateValue s c r =  let cell = getValue s c r in
                             Nothing -> 0.0
                             Just (NumVal a) -> a
                             Just (StringVal _) -> error "String value"
-                            Just (SumFunc range _) -> calculateFunc s (+) 0 range
-                            Just (MulFunc range _) -> calculateFunc s (*) 1 range
-                            Just (AvgFunc range _) -> (calculateFunc s (+) 0 range) / (fromIntegral (length range))
+                            Just (SumFunc _range _) -> calculateFunc s (+) 0 _range
+                            Just (MulFunc _range _) -> calculateFunc s (*) 1 _range
+                            Just (AvgFunc _range _) -> (calculateFunc s (+) 0 _range) / (fromIntegral (length _range))
 
 calculateFunc :: Spreadsheet -> (Double -> Double -> Double) -> Double -> [(Char, Int)] -> Double
-calculateFunc s f neutral range = foldl f neutral (map (\x -> calculateValue s (fst x) (snd x)) range)
+calculateFunc s f neutral _range = foldl f neutral (map (\x -> calculateValue s (fst x) (snd x)) _range)
 
 -- sets value of cell (c,r) to v.
 -- if a cell already exists on spreadsheet list - modifies its value
@@ -122,9 +120,7 @@ addRow s = do
 
 -- modify cell value
 modifyCell :: Spreadsheet -> Char -> Int -> CellVal -> IO Spreadsheet
-modifyCell s c r v = do
-            return (s)
-            -- TODO --
+modifyCell s c r v = return (setValue s c r v)
 
 -- ---------------------------------------------------------------------------
 -- Utils

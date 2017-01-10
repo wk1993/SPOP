@@ -66,7 +66,7 @@ rangeList = do
 
 listElement :: Parser [(Char, Int)]
 listElement = do
-                  colb <- sat (isAlpha)
+                  colb <- sat (isAlpha) -- TODO make it case (in)sensitive?
                   rowb <- many digit
                   char ':'
                   cole <- sat (isAlpha)
