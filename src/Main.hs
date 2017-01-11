@@ -52,13 +52,13 @@ iterateLoop actualSpreadSheet = do
             putStrLn ("Removing row " ++ show id ++ "...")
             actualSpreadSheet <- (removeRow actualSpreadSheet id)
             iterateLoop actualSpreadSheet
-        AddColumn -> do 
+        AddColumn id -> do 
             putStrLn ("Adding a new column to spreadsheet...")
-            actualSpreadSheet <- (addColumn actualSpreadSheet)
+            actualSpreadSheet <- (addColumn actualSpreadSheet id)
             iterateLoop actualSpreadSheet
-        AddRow -> do 
+        AddRow id -> do 
             putStrLn ("Adding a new row to spreadsheet...")
-            actualSpreadSheet <- (addRow actualSpreadSheet)
+            actualSpreadSheet <- (addRow actualSpreadSheet id)
             iterateLoop actualSpreadSheet
         ModifyCell -> do 
             putStr "column: "
