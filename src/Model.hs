@@ -40,8 +40,8 @@ instance Show CellVal where -- TODO restore after debugging
 
 --
 -- Cell - type representing a single cell in spreadsheet. It contains:
--- - col - column coordinate. Should be 'A'-'Z'
--- - row - row coordinate. An integer from range [1,100].
+-- - col - column coordinate. Should be 'A'-'J'
+-- - row - row coordinate. An integer from range [1,50].
 -- - val - value of this cell
 --
 

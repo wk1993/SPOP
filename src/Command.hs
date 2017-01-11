@@ -7,8 +7,8 @@ data Command =
     SaveSpreadsheet String |
     RemoveColumn Char |
     RemoveRow Int |
-    AddColumn |
-    AddRow |
+    AddColumn Char |
+    AddRow Int |
     ModifyCell |
     CreateSpreadsheet |
     ShowSpreadsheet |

@@ -117,11 +117,11 @@ removeRow s r = return s { cells = map moveOneUp filtered }
 -- The index 'ind' indicates what address will the newly created column have,
 -- i.e. addColumn s 'B' adds a new column 'B', moving previous column 'B' and
 -- all the successors one column further to the right. If there are cells in
--- column 'Z', an error is thrown.
+-- column 'J', an error is thrown.
 -- TODO protect from indices out of bounds
 -- TODO test it
 addColumn :: Spreadsheet -> Char -> IO Spreadsheet
-addColumn s ind = if (any (\x -> (col x) == 'Z') (cells s)) then
+addColumn s ind = if (any (\x -> (col x) == 'J') (cells s)) then
                       error "Non-empty cells in last column"
                   else
                       return s { cells = map moveOneRight (cells s) }
@@ -131,11 +131,11 @@ addColumn s ind = if (any (\x -> (col x) == 'Z') (cells s)) then
 -- add a new row to spreadsheet
 -- The index 'ind' indicates what address will the newly created row have,
 -- i.e. addRow s 3 adds a new column 3, moving previous column 3 and
--- all the successors one column down. If there are cells in column 100, an error is thrown.
+-- all the successors one column down. If there are cells in column 50, an error is thrown.
 -- TODO protect from indices out of bounds
 -- TODO test it
 addRow :: Spreadsheet -> Int -> IO Spreadsheet
-addRow s ind = if (any (\x -> (row x) == 100) (cells s)) then
+addRow s ind = if (any (\x -> (row x) == 50) (cells s)) then
                    error "Non-empty cells in last row"
                else
                    return s { cells = map moveOneDown (cells s) }

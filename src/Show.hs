@@ -15,10 +15,10 @@ charToString c = [c]
 
 showSpreadsheet :: Spreadsheet -> IO ()
 showSpreadsheet None = putStrLn ("Your spreadsheet is not set, create or read it from file!")
-showSpreadsheet (Spreadsheet _ []) = putStrLn ("Your spreadsheet is empty!")
+--showSpreadsheet (Spreadsheet _ []) = putStrLn ("Your spreadsheet is empty!")
 showSpreadsheet spreadsheet = do
-    showSpreadsheetNameOfColumns (nub([col cell | cell <- (cells spreadsheet)]))
-    showSpreadsheetLoop spreadsheet 1 (row (last (sort (cells spreadsheet)))) (nub([col cell | cell <- (cells spreadsheet)]))
+    showSpreadsheetNameOfColumns ['A' .. 'J']
+    showSpreadsheetLoop spreadsheet 1 50 ['A' .. 'J']
 
 showSpreadsheetLoop :: Spreadsheet -> Int -> Int -> [Char] -> IO ()
 showSpreadsheetLoop spreadsheet actualRowId lastRowId nameOfColumns = do
