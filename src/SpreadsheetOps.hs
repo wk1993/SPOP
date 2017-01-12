@@ -1,6 +1,6 @@
 module SpreadsheetOps (
     createSpreadsheet, openSpreadsheet, saveSpreadsheet,
-    getValue, calculateValue, setValue,
+    getValue, calculateValue,
     getCellsRect,
     removeColumn, removeRow, addColumn, addRow,
     modifyCell
@@ -68,7 +68,7 @@ calculateValue s c r =  let cell = getValue s c r in
                         case cell of
                             Nothing -> 0.0
                             Just (NumVal a) -> a
-                            Just (StringVal _) -> error "String value"
+                            Just (StringVal _) -> error "Attempting to calculate string value"
                             Just (SumFunc _range _) -> calculateFunc s (+) 0 _range
                             Just (MulFunc _range _) -> calculateFunc s (*) 1 _range
                             Just (AvgFunc _range _) -> (calculateFunc s (+) 0 _range) / (fromIntegral (length _range))
@@ -79,9 +79,9 @@ calculateFunc s f neutral _range = foldl f neutral (map (\x -> calculateValue s 
 -- sets value of cell (c,r) to v.
 -- if a cell already exists on spreadsheet list - modifies its value
 -- else - adds new cell to spreadsheet's cells list (at the end)
--- TODO removing cell if its value is (StringVal "")
-setValue :: Spreadsheet -> Char -> Int -> CellVal -> Spreadsheet
-setValue s c r v = if exists then
+-- Note: all the error conditions check should be done in modifiyCell
+setCellValue :: Spreadsheet -> Char -> Int -> CellVal -> Spreadsheet
+setCellValue s c r v = if exists then
                        -- replace existing cell with new one (containing new value)
                        s { cells = replaceItem (cells s) (head filtered) (Cell c r v) }
                    else
@@ -91,6 +91,12 @@ setValue s c r v = if exists then
                        exists = if (length filtered == 1) then True
                                 else if (length filtered == 0) then False
                                 else error "Inconsistent spreadsheet state: more than one cell with given (col,row)"
+
+-- removes cell (c,r) from cells list of spreadsheet, efectively clearing
+-- it out.
+-- Note: all the error conditions check should be done in modifiyCell
+removeCell :: Spreadsheet -> Char -> Int -> Spreadsheet
+removeCell s c r = s {cells = filter (\i -> not ((col i) == c && (row i) == r)) (cells s)}
 
 
 -- remove column from spreadsheet
@@ -152,9 +158,16 @@ addRow s ind = if not (inRange ind magic_cellMinRow magic_cellMaxRow) then
                        moveOneDown = \x -> if (row x) >= ind then (x {row = (row x)+1}) else x
 
 -- modify cell value
--- TODO protect from indices out of bounds
-modifyCell :: Spreadsheet -> Char -> Int -> CellVal -> IO Spreadsheet
-modifyCell s c r v = return (setValue s c r v)
+modifyCell :: Spreadsheet -> Char -> Int -> CellVal -> Either String (IO Spreadsheet)
+modifyCell None _ _ _ = Left "No spreadsheet. Create or open a spreadsheet first"
+modifyCell s c r v = if not (inRange c magic_cellMinCol magic_cellMaxCol) then
+                         Left "Column address not in range"
+                     else if not (inRange r magic_cellMinRow magic_cellMaxRow) then
+                         Left "Row address not in range"
+                     else
+                         case v of
+                             StringVal "" -> Right (return (removeCell s c r))
+                             _            -> Right (return (setCellValue s c r v))
 
 -- ---------------------------------------------------------------------------
 -- Utils

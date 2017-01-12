@@ -101,7 +101,7 @@ iterateLoop actualSpreadSheet = do
             let
                 newCellValue = evalFromString line
             putStrLn ("Modifing cell " ++ (charToString column) ++ show row ++ " with value equal to " ++ (show newCellValue) ++ " ...")
-            actualSpreadSheet <- (modifyCell actualSpreadSheet column row newCellValue)
+            actualSpreadSheet <- handleErrors (modifyCell actualSpreadSheet column row newCellValue)
             iterateLoop actualSpreadSheet
         CreateSpreadsheet -> do 
             putStrLn ("Creating a new spreadsheet...")
