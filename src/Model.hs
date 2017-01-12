@@ -1,5 +1,7 @@
 module Model (
-    CellVal(..), Cell(..), Spreadsheet(..)
+    CellVal(..), Cell(..), Spreadsheet(..),
+    magic_cellMinCol, magic_cellMaxCol,
+    magic_cellMinRow, magic_cellMaxRow
 ) where
 
 import System.IO
@@ -40,8 +42,8 @@ instance Show CellVal where -- TODO restore after debugging
 
 --
 -- Cell - type representing a single cell in spreadsheet. It contains:
--- - col - column coordinate. Should be 'A'-'J'
--- - row - row coordinate. An integer from range [1,50].
+-- - col - column coordinate. Should between magic_cellMinCol and magic_cellMaxCol
+-- - row - row coordinate. An integer from range [magic_cellMinRow,magic_cellMaxRow].
 -- - val - value of this cell
 --
 
@@ -50,6 +52,11 @@ data Cell = Cell {
     row :: Int,
     val :: CellVal
 }
+
+magic_cellMinCol = 'A' :: Char
+magic_cellMaxCol = 'J' :: Char
+magic_cellMinRow = 1   :: Int
+magic_cellMaxRow = 50  :: Int
 
 -- Two cells are 'equal' if they have the same coordinations
 -- This means that, at the moment, VALUES of cells don't matter for

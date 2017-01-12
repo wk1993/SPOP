@@ -92,23 +92,27 @@ setValue s c r v = if exists then
                                 else if (length filtered == 0) then False
                                 else error "Inconsistent spreadsheet state: more than one cell with given (col,row)"
 
---parseRange :: String -> [(Char, Int)]
---parseRange str =
 
 -- remove column from spreadsheet
--- TODO protect from indices out of bounds
 -- TODO test it
-removeColumn :: Spreadsheet -> Char -> IO Spreadsheet
-removeColumn s c = return s { cells = map moveOneLeft filtered }
+removeColumn :: Spreadsheet -> Char -> Either String (IO Spreadsheet)
+removeColumn None _ = Left "No spreadsheet. Create or open a spreadsheet first"
+removeColumn s c = if not (inRange c magic_cellMinCol magic_cellMaxCol) then
+                       Left "Column address out of range"
+                   else
+                       Right (return s { cells = map moveOneLeft filtered })
                    where
                        filtered = filter (\x -> (col x) /= c) (cells s)
                        moveOneLeft = \x -> if (col x) > c then (x {col = chr(ord(col x)-1)}) else x
 
 -- remove row from spreadsheet
--- TODO protect from indices out of bounds
 -- TODO test it
-removeRow :: Spreadsheet -> Int -> IO Spreadsheet
-removeRow s r = return s { cells = map moveOneUp filtered }
+removeRow :: Spreadsheet -> Int -> Either String (IO Spreadsheet)
+removeRow None _ = Left "No spreadsheet. Create or open a spreadsheet first"
+removeRow s r = if not (inRange r magic_cellMinRow magic_cellMaxRow) then
+                    Left "Row address out of range"
+                else
+                    Right (return s { cells = map moveOneUp filtered })
                    where
                        filtered = filter (\x -> (row x) /= r) (cells s)
                        moveOneUp = \x -> if (row x) > r then (x {row = (row x)-1}) else x
@@ -116,29 +120,34 @@ removeRow s r = return s { cells = map moveOneUp filtered }
 -- add a new column to spreadsheet
 -- The index 'ind' indicates what address will the newly created column have,
 -- i.e. addColumn s 'B' adds a new column 'B', moving previous column 'B' and
--- all the successors one column further to the right. If there are cells in
--- column 'J', an error is thrown.
--- TODO protect from indices out of bounds
+-- all the successors one column further to the right. If there are non-empty
+-- cells in column magic_cellMaxCol, an error is thrown.
 -- TODO test it
-addColumn :: Spreadsheet -> Char -> IO Spreadsheet
-addColumn s ind = if (any (\x -> (col x) == 'J') (cells s)) then
-                      error "Non-empty cells in last column"
+addColumn :: Spreadsheet -> Char -> Either String (IO Spreadsheet)
+addColumn None _ = Left "No spreadsheet. Create or open a spreadsheet first"
+addColumn s ind = if not (inRange ind magic_cellMinCol magic_cellMaxCol) then
+                      Left "Column address out of range"
+                  else if (any (\x -> (col x) == magic_cellMaxCol) (cells s)) then
+                      Left "Non-empty cells in last column"
                   else
-                      return s { cells = map moveOneRight (cells s) }
+                      Right (return s { cells = map moveOneRight (cells s) })
                       where
                           moveOneRight = \x -> if (col x) >= ind then (x {col = chr(ord(col x)+1)}) else x
 
 -- add a new row to spreadsheet
 -- The index 'ind' indicates what address will the newly created row have,
--- i.e. addRow s 3 adds a new column 3, moving previous column 3 and
--- all the successors one column down. If there are cells in column 50, an error is thrown.
--- TODO protect from indices out of bounds
+-- i.e. addRow s 3 adds a new row 3, moving previous row 3 and
+-- all the successors one row down. If there are non-empty cells in row
+-- magic_cellMaxRow, an error is thrown.
 -- TODO test it
-addRow :: Spreadsheet -> Int -> IO Spreadsheet
-addRow s ind = if (any (\x -> (row x) == 50) (cells s)) then
-                   error "Non-empty cells in last row"
+addRow :: Spreadsheet -> Int -> Either String (IO Spreadsheet)
+addRow None _ = Left "No spreadsheet. Create or open a spreadsheet first"
+addRow s ind = if not (inRange ind magic_cellMinRow magic_cellMaxRow) then
+                   Left "Row address out of range"
+               else if (any (\x -> (row x) == 50) (cells s)) then
+                   Left "Non-empty cells in last row"
                else
-                   return s { cells = map moveOneDown (cells s) }
+                   Right (return s { cells = map moveOneDown (cells s) })
                    where
                        moveOneDown = \x -> if (row x) >= ind then (x {row = (row x)+1}) else x
 

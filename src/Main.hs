@@ -35,6 +35,11 @@ iterateLoop actualSpreadSheet = do
     unparsedCommand <- getLine
     let
         command = parse unparsedCommand
+        handleErrors = \x -> case x of
+                             Left e -> do
+                                putStrLn("Error: " ++ e)
+                                return actualSpreadSheet
+                             Right s -> s
     case command of 
         OpenSpreadsheet file -> do 
             putStrLn ("Opening spreadsheet from " ++ file ++ " file...")
@@ -46,19 +51,23 @@ iterateLoop actualSpreadSheet = do
             iterateLoop actualSpreadSheet
         RemoveColumn id -> do 
             putStrLn ("Removing column " ++ show id ++ "...")
-            actualSpreadSheet <- (removeColumn actualSpreadSheet id)
+            actualSpreadSheet <- case (removeColumn actualSpreadSheet id) of
+                                     Left e -> do
+                                         putStrLn("Error: " ++ e)
+                                         return actualSpreadSheet
+                                     Right s -> s
             iterateLoop actualSpreadSheet
         RemoveRow id -> do 
             putStrLn ("Removing row " ++ show id ++ "...")
-            actualSpreadSheet <- (removeRow actualSpreadSheet id)
+            actualSpreadSheet <- handleErrors (removeRow actualSpreadSheet id)
             iterateLoop actualSpreadSheet
         AddColumn id -> do 
             putStrLn ("Adding a new column to spreadsheet...")
-            actualSpreadSheet <- (addColumn actualSpreadSheet id)
+            actualSpreadSheet <- handleErrors (addColumn actualSpreadSheet id)
             iterateLoop actualSpreadSheet
         AddRow id -> do 
             putStrLn ("Adding a new row to spreadsheet...")
-            actualSpreadSheet <- (addRow actualSpreadSheet id)
+            actualSpreadSheet <- handleErrors (addRow actualSpreadSheet id)
             iterateLoop actualSpreadSheet
         ModifyCell -> do 
             putStr "column: "
