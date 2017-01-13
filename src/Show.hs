@@ -15,7 +15,6 @@ charToString c = [c]
 
 showSpreadsheet :: Spreadsheet -> IO ()
 showSpreadsheet None = putStrLn ("Your spreadsheet is not set, create or read it from file!")
---showSpreadsheet (Spreadsheet _ []) = putStrLn ("Your spreadsheet is empty!")
 showSpreadsheet spreadsheet = do
     showSpreadsheetNameOfColumns ['A' .. 'J']
     showSpreadsheetLoop spreadsheet 1 50 ['A' .. 'J']

@@ -90,7 +90,7 @@ iterateLoop actualSpreadSheet = do
                 iterateLoop actualSpreadSheet
             let
                 row = read line :: Int
-            putStr "new value: "
+            putStr "new value (leave blank to remove actual cell value): "
             hFlush stdout
             line <- getLine
             if isValidCellValue line then 
