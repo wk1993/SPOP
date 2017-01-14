@@ -21,19 +21,24 @@ showSpreadsheet spreadsheet = do
 
 showSpreadsheetLoop :: Spreadsheet -> Int -> Int -> [Char] -> IO ()
 showSpreadsheetLoop spreadsheet actualRowId lastRowId nameOfColumns = do
-    showSpreadsheetRow actualRowId (getCellsRect spreadsheet 'A' actualRowId 100 0) nameOfColumns
+    showSpreadsheetRow spreadsheet actualRowId (getCellsRect spreadsheet 'A' actualRowId 100 0) nameOfColumns
     if actualRowId == lastRowId then
         return ()
     else
         showSpreadsheetLoop spreadsheet (actualRowId+1) lastRowId nameOfColumns
 
-showSpreadsheetRow :: Int -> [Cell] -> [Char] -> IO ()
-showSpreadsheetRow rowId cells nameOfColumns = do
+showSpreadsheetRow :: Spreadsheet -> Int -> [Cell] -> [Char] -> IO ()
+showSpreadsheetRow s rowId cells nameOfColumns = do
     putStr $ (show rowId ++ "\t\t")
     mapM_ (\column -> if elem column [col cell | cell <- cells] 
-                      then putStr $ (show (val (cells!!(last((findPos cells column))))) ++ "\t\t") 
+                      then putStr $ (showCellVal s (val (cells!!(last((findPos cells column))))) ++ "\t\t")
                       else putStr $ "\t\t") nameOfColumns
     putStr "\n"
+
+showCellVal :: Spreadsheet -> CellVal -> String
+showCellVal s cv = case cv of
+                     StringVal a -> show a
+                     other       -> show (calculateValue s (Just other))
 
 showSpreadsheetNameOfColumns :: [Char] -> IO ()
 showSpreadsheetNameOfColumns nameOfColumns = do

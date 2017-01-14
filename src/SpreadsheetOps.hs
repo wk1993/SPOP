@@ -83,18 +83,17 @@ getCellsRect s begc begr countc countr = sort (filter filter_fun (cells s))
 -- calculates value from cell (c,r). For Cell without value, returns 0.0. For StringVal throws error.
 -- In case of errors in computation returns NaN
 -- TODO test it
-calculateValue :: Spreadsheet -> Char -> Int -> Double
-calculateValue s c r =  let cell = getValue s c r in
-                        case cell of
-                            Nothing -> 0.0
-                            Just (NumVal a) -> a
-                            Just (StringVal _) -> error "Attempting to calculate string value"
-                            Just (SumFunc _range _) -> calculateFunc s (+) 0 _range
-                            Just (MulFunc _range _) -> calculateFunc s (*) 1 _range
-                            Just (AvgFunc _range _) -> (calculateFunc s (+) 0 _range) / (fromIntegral (length _range))
+calculateValue :: Spreadsheet -> Maybe CellVal -> Double
+calculateValue s cv = case cv of
+                          Nothing -> 0.0
+                          Just (NumVal a) -> a
+                          Just (StringVal _) -> error "Attempting to calculate string value"
+                          Just (SumFunc _range _) -> calculateFunc s (+) 0 _range
+                          Just (MulFunc _range _) -> calculateFunc s (*) 1 _range
+                          Just (AvgFunc _range _) -> (calculateFunc s (+) 0 _range) / (fromIntegral (length _range))
 
 calculateFunc :: Spreadsheet -> (Double -> Double -> Double) -> Double -> [(Char, Int)] -> Double
-calculateFunc s f neutral _range = foldl f neutral (map (\x -> calculateValue s (fst x) (snd x)) _range)
+calculateFunc s f neutral _range = foldl f neutral (map (\x -> calculateValue s (getValue s (fst x) (snd x))) _range)
 
 -- sets value of cell (c,r) to v.
 -- if a cell already exists on spreadsheet list - modifies its value
