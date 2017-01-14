@@ -18,6 +18,8 @@ import Control.Exception
 import Model
 import Serialization
 
+magic_maxRecursionDepth = 16 :: Int
+
 -- ---------------------------------------------------------------------------
 -- Spreadsheet operations
 -- ---------------------------------------------------------------------------
@@ -86,21 +88,26 @@ getCellsRect s begc begr countc countr = sort (filter filter_fun (cells s))
 -- calculates value from cell (c,r). For Cell without value, returns 0.0.
 -- Returns Right <value> if succeeded and Left <err_string> if error ocurred
 calculateValue :: Spreadsheet -> Maybe CellVal -> Either String Double
-calculateValue s cv = case cv of
+calculateValue s cv = calculateValueInternal s cv magic_maxRecursionDepth
+
+calculateValueInternal :: Spreadsheet -> Maybe CellVal -> Int -> Either String Double
+calculateValueInternal s cv rd =
+                          if rd == 0 then Left "Cyclic reference or formula too complicated"
+                          else case cv of
                           Nothing -> Right 0.0
                           Just (NumVal a) -> Right a
                           Just (StringVal _) -> Left "Attempting to calculate on string value"
-                          Just (SumFunc _range _) -> calculateFunc s (+) 0 _range
-                          Just (MulFunc _range _) -> calculateFunc s (*) 1 _range
-                          Just (AvgFunc _range _) -> case (calculateFunc s (+) 0 _range) of
+                          Just (SumFunc _range _) -> calculateFunc s (+) 0 _range rd
+                          Just (MulFunc _range _) -> calculateFunc s (*) 1 _range rd
+                          Just (AvgFunc _range _) -> case (calculateFunc s (+) 0 _range rd) of
                                                          Left err -> Left err
                                                          Right val -> Right (val / (fromIntegral (length _range)))
 
-calculateFunc :: Spreadsheet -> (Double -> Double -> Double) -> Double -> [(Char, Int)] -> Either String Double
-calculateFunc s f neutral _range = let
+calculateFunc :: Spreadsheet -> (Double -> Double -> Double) -> Double -> [(Char, Int)] -> Int -> Either String Double
+calculateFunc s f neutral _range rd = let
                                        map_range = \x ->
                                            case getValue s (fst x) (snd x) of
-                                               Right val -> calculateValue s val
+                                               Right val -> calculateValueInternal s val (rd-1)
                                                Left err  -> Left err
 
                                        range_cells_calculated = map map_range _range

@@ -83,6 +83,6 @@ instance Ord Cell where
 --
 
 data Spreadsheet = Spreadsheet {
-    io_handle :: Maybe Handle,
+    io_handle :: Maybe Handle, -- TODO remove it?
     cells :: [Cell]
 } | None
