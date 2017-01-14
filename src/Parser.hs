@@ -17,6 +17,7 @@ parse unparsedCommand = case unparsedCommand of
     "modify cell" -> ModifyCell
     "create" -> CreateSpreadsheet
     "show" -> ShowSpreadsheet
+    "show cell" -> ShowCell
     "exit" -> Exit
     "help" -> Help
     _ -> UnknownCommand

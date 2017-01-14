@@ -7,22 +7,6 @@ import Show
 import SpreadsheetOps
 import CellValParser
 
-{- 
-cellValA =  StringVal "a"
-cellValB =  StringVal "b"
-cellValC =  StringVal "c"
-cellValD =  StringVal "d"
-cellValE =  StringVal "e"
-
-cellA = Cell 'A' 1 cellValA
-cellB = Cell 'A' 2 cellValB
-cellC = Cell 'B' 1 cellValC
-cellD = Cell 'B' 2 cellValD
-cellE = Cell 'C' 3 cellValE
-
-spreadsheet = Spreadsheet Nothing [cellA, cellB, cellC, cellD, cellE]
--}
-
 main = do
     putStrLn ("Welcome to SPOP project")
     putStrLn ("Authors: Krystian Kieczka, Wiktor Kusmirek")
@@ -118,6 +102,29 @@ iterateLoop actualSpreadSheet = do
         ShowSpreadsheet -> do 
             putStrLn ("Showing spreadsheet...")
             showSpreadsheet actualSpreadSheet
+        ShowCell -> do 
+            putStr "column: "
+            hFlush stdout
+            line <- getLine
+            if isSingleLetter line then 
+                putStrLn ("Column value is valid...") 
+            else do
+                putStrLn ("Column value is invalid, it should be single character")
+                iterateLoop actualSpreadSheet
+            let
+                column = (head (read ("\"" ++ line ++ "\"") :: String))
+            putStr "row: "
+            hFlush stdout
+            line <- getLine
+            if isValidInt line then 
+                putStrLn ("Row value is valid...") 
+            else do
+                putStrLn ("Row value is invalid, it should be integer")
+                iterateLoop actualSpreadSheet
+            let
+                row = read line :: Int
+            putStrLn ("Showing full value of cell " ++ (charToString column) ++ show row ++ " ...")
+            putStrLn ("Full cell value: " ++ showFullCell actualSpreadSheet column row)
         Exit -> do 
             putStrLn ("Bye, bye...")
             exitSuccess 

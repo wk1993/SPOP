@@ -12,6 +12,7 @@ data Command =
     ModifyCell |
     CreateSpreadsheet |
     ShowSpreadsheet |
+    ShowCell |
     Exit |
     Help |
     UnknownCommand

@@ -1,7 +1,8 @@
 module Show (
     showSpreadsheet,
     showAvailableCommands,
-    charToString
+    charToString,
+    showFullCell
 ) where
 
 import Data.List
@@ -31,16 +32,30 @@ showSpreadsheetRow :: Spreadsheet -> Int -> [Cell] -> [Char] -> IO ()
 showSpreadsheetRow s rowId cells nameOfColumns = do
     putStr $ (show rowId ++ "\t\t")
     mapM_ (\column -> if elem column [col cell | cell <- cells] 
-                      then putStr $ (showCellVal s (val (cells!!(last((findPos cells column))))) ++ "\t\t")
+                      then putStr $ (showTrimmedCell s (val (cells!!(last((findPos cells column))))) ++ "\t\t")
                       else putStr $ "\t\t") nameOfColumns
     putStr "\n"
 
-showCellVal :: Spreadsheet -> CellVal -> String
-showCellVal s cv = case cv of
+showTrimmedCell :: Spreadsheet -> CellVal -> String
+showTrimmedCell s cv = case cv of
+                     StringVal a -> trimCellValLength a
+                     other       -> case (calculateValue s (Just other)) of
+                                        Left err -> "Error: " ++ err
+                                        Right val -> trimCellValLength (show val)
+
+showFullCell :: Spreadsheet -> Char -> Int -> String
+showFullCell s c r = case (val (last (getCellsRect s c r 0 0))) of
                      StringVal a -> a
                      other       -> case (calculateValue s (Just other)) of
                                         Left err -> "Error: " ++ err
                                         Right val -> show val
+
+
+
+--show (getValue s c r)       --"abc"
+
+trimCellValLength :: String -> String
+trimCellValLength inputStr = if length inputStr < 15 then inputStr else (take 11 inputStr) ++ "..."
 
 showSpreadsheetNameOfColumns :: [Char] -> IO ()
 showSpreadsheetNameOfColumns nameOfColumns = do
@@ -62,7 +77,8 @@ showAvailableCommands = do
     putStrLn ("add row            - add a new row to the spreadsheet, id for this row will be designated automatically")
     putStrLn ("modify cell        - modify value for specified (in next steps) cell")
     putStrLn ("create             - create new spreadsheet")
-    putStrLn ("show               - show content of actual spreadsheet")
+    putStrLn ("show               - show content of actual spreadsheet, cells with long values are trimmed, you can print them using 'show cell' command")
+    putStrLn ("show cell          - show full value for specified (in next steps) cell")
     putStrLn ("exit               - close the program")
     putStrLn ("help               - show help page")
     putStrLn ("")
