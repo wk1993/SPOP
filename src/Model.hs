@@ -32,10 +32,10 @@ data CellVal = StringVal String
                | AvgFunc { range :: [(Char, Int)], str :: String}
 
 instance Show CellVal where -- TODO restore after debugging
-    show (StringVal a) = "str " ++ a                            -- a
-    show (NumVal a) = "num " ++ show a                          -- show a
-    show (SumFunc t s) = "sum " ++ show t ++ ", txt: " ++ s     -- s
-    show (MulFunc t s) = "mul " ++ show t ++ ", txt: " ++ s     -- s
+    show (StringVal a) = a
+    show (NumVal a) = show a
+    show (SumFunc _ s) = s
+    show (MulFunc _ s) = s
     show (AvgFunc _ s) = s
 
 -- ---------------------------------------------------------------------------
