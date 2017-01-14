@@ -43,11 +43,20 @@ iterateLoop actualSpreadSheet = do
     case command of 
         OpenSpreadsheet file -> do 
             putStrLn ("Opening spreadsheet from " ++ file ++ " file...")
-            actualSpreadSheet <- (openSpreadsheet file)
+            actualSpreadSheet <- do res <- (openSpreadsheet file)
+                                    case res of
+                                     Left e -> do
+                                         putStrLn("Error: " ++ e)
+                                         return actualSpreadSheet
+                                     Right s -> return s
             iterateLoop actualSpreadSheet
         SaveSpreadsheet file -> do 
             putStrLn ("Saving spreadsheet to " ++ file ++ " file...")
-            saveSpreadsheet actualSpreadSheet file
+            err <- saveSpreadsheet actualSpreadSheet file
+            case err of
+                Just s -> do
+                    putStrLn("Error: " ++ s)
+                Nothing -> return ()
             iterateLoop actualSpreadSheet
         RemoveColumn id -> do 
             putStrLn ("Removing column " ++ show id ++ "...")

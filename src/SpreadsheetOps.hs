@@ -7,10 +7,13 @@ module SpreadsheetOps (
 ) where
 
 import System.IO
+import System.IO.Error
 import Data.Maybe
 import Data.Char
 import Data.List
 import Data.Binary
+import qualified Data.ByteString.Lazy as BS
+import Control.Exception
 
 import Model
 import Serialization
@@ -24,18 +27,35 @@ createSpreadsheet :: Spreadsheet
 createSpreadsheet = Spreadsheet Nothing []
 
 -- opens spreadsheet from a file
-openSpreadsheet :: [Char] -> IO Spreadsheet
+openSpreadsheet :: [Char] -> IO (Either String Spreadsheet)
 openSpreadsheet filename = do
-                               s <- decodeFile filename
-                               return s
+                               catch (do
+                                      handle <- openFile filename ReadMode
+                                      hSetBinaryMode handle True
+                                      contents <- BS.hGetContents handle
+                                      res <- return (decodeOrFail contents)
+                                      case res of
+                                          Left (_,_,errstr) -> do
+                                                               hClose handle
+                                                               return (Left errstr)
+                                          Right (_,_,s) -> do
+                                                           hClose handle
+                                                           return (Right s)
+                                      ) errHandler
+                               where
+                                   errHandler e = return (Left (translateIOError e)) -- TODO close handle
+
 
 -- saves spreadsheet to file
-saveSpreadsheet :: Spreadsheet -> [Char] -> IO ()
-saveSpreadsheet s filename = encodeFile filename s
+saveSpreadsheet :: Spreadsheet -> [Char] -> IO (Maybe String)
+saveSpreadsheet s filename = do
+                                 res <- try (BS.writeFile filename (encode s))
+                                 case res of
+                                     Left e -> return (Just (translateIOError e))
+                                     Right _ -> return Nothing
 
--- closes spreadsheet file
---closeSpreadsheet :: Spreadsheet -> IO ()
---closeSpreadsheet s = if isJust (io_handle s) then hClose (fromJust (io_handle s)) else return ()
+translateIOError :: IOError -> String
+translateIOError (e) = (show e) -- TODO more descriptive error messages?
 
 
 -- ---------------------------------------------------------------------------
@@ -101,7 +121,7 @@ removeCell s c r = s {cells = filter (\i -> not ((col i) == c && (row i) == r)) 
 
 -- remove column from spreadsheet
 -- TODO test it
-removeColumn :: Spreadsheet -> Char -> Either String (IO Spreadsheet)
+removeColumn :: Spreadsheet -> Char -> Either String (IO Spreadsheet) -- TODO change to IO (Either ...)?
 removeColumn None _ = Left "No spreadsheet. Create or open a spreadsheet first"
 removeColumn s c = if not (inRange c magic_cellMinCol magic_cellMaxCol) then
                        Left "Column address out of range"
