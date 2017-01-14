@@ -37,8 +37,10 @@ showSpreadsheetRow s rowId cells nameOfColumns = do
 
 showCellVal :: Spreadsheet -> CellVal -> String
 showCellVal s cv = case cv of
-                     StringVal a -> show a
-                     other       -> show (calculateValue s (Just other))
+                     StringVal a -> a
+                     other       -> case (calculateValue s (Just other)) of
+                                        Left err -> "Error: " ++ err
+                                        Right val -> show val
 
 showSpreadsheetNameOfColumns :: [Char] -> IO ()
 showSpreadsheetNameOfColumns nameOfColumns = do

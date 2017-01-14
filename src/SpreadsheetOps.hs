@@ -63,9 +63,12 @@ translateIOError (e) = (show e) -- TODO more descriptive error messages?
 -- ---------------------------------------------------------------------------
 
 -- returns value of cell (c,r) without calculating it
-getValue :: Spreadsheet -> Char -> Int -> Maybe CellVal
-getValue s c r = if filtered_len == 1 then Just (val (head filtered))
-                    else if filtered_len == 0 then Nothing
+getValue :: Spreadsheet -> Char -> Int -> Either String (Maybe CellVal)
+getValue s c r = if not (inRange c magic_cellMinCol magic_cellMaxCol) ||
+                    not (inRange r magic_cellMinRow magic_cellMaxRow) then
+                     Left "Cell address out of bounds"
+                 else if filtered_len == 1 then Right (Just (val (head filtered)))
+                    else if filtered_len == 0 then Right Nothing
                     else error "Inconsistent spreadsheet state: more than one cell with given (col,row)"
                  where
                     filtered = filter (\i -> (col i) == c && (row i) == r) (cells s)
@@ -80,25 +83,44 @@ getCellsRect s begc begr countc countr = sort (filter filter_fun (cells s))
                                             maxr = begr+countr
                                             filter_fun = (\x -> inRange (col x) begc maxc && inRange (row x) begr maxr)
 
--- calculates value from cell (c,r). For Cell without value, returns 0.0. For StringVal throws error.
--- In case of errors in computation returns NaN
--- TODO test it
-calculateValue :: Spreadsheet -> Maybe CellVal -> Double
+-- calculates value from cell (c,r). For Cell without value, returns 0.0.
+-- Returns Right <value> if succeeded and Left <err_string> if error ocurred
+calculateValue :: Spreadsheet -> Maybe CellVal -> Either String Double
 calculateValue s cv = case cv of
-                          Nothing -> 0.0
-                          Just (NumVal a) -> a
-                          Just (StringVal _) -> error "Attempting to calculate string value"
+                          Nothing -> Right 0.0
+                          Just (NumVal a) -> Right a
+                          Just (StringVal _) -> Left "Attempting to calculate on string value"
                           Just (SumFunc _range _) -> calculateFunc s (+) 0 _range
                           Just (MulFunc _range _) -> calculateFunc s (*) 1 _range
-                          Just (AvgFunc _range _) -> (calculateFunc s (+) 0 _range) / (fromIntegral (length _range))
+                          Just (AvgFunc _range _) -> case (calculateFunc s (+) 0 _range) of
+                                                         Left err -> Left err
+                                                         Right val -> Right (val / (fromIntegral (length _range)))
 
-calculateFunc :: Spreadsheet -> (Double -> Double -> Double) -> Double -> [(Char, Int)] -> Double
-calculateFunc s f neutral _range = foldl f neutral (map (\x -> calculateValue s (getValue s (fst x) (snd x))) _range)
+calculateFunc :: Spreadsheet -> (Double -> Double -> Double) -> Double -> [(Char, Int)] -> Either String Double
+calculateFunc s f neutral _range = let
+                                       map_range = \x ->
+                                           case getValue s (fst x) (snd x) of
+                                               Right val -> calculateValue s val
+                                               Left err  -> Left err
+
+                                       range_cells_calculated = map map_range _range
+                                       isErroneus = \x -> case x of
+                                                              Left _ -> True
+                                                              Right _ -> False
+                                       isValid = \x -> case x of
+                                                           Left _ -> False
+                                                           Right _ -> True
+
+                                   in
+                                       if any isErroneus range_cells_calculated then
+                                           head (dropWhile isValid range_cells_calculated)
+                                       else
+                                           Right (foldl f neutral (map (\(Right x) -> x) range_cells_calculated))
 
 -- sets value of cell (c,r) to v.
 -- if a cell already exists on spreadsheet list - modifies its value
 -- else - adds new cell to spreadsheet's cells list (at the end)
--- Note: all the error conditions check should be done in modifiyCell
+-- Note: all the error conditions check should be done in modifyCell
 setCellValue :: Spreadsheet -> Char -> Int -> CellVal -> Spreadsheet
 setCellValue s c r v = if exists then
                        -- replace existing cell with new one (containing new value)
@@ -113,7 +135,7 @@ setCellValue s c r v = if exists then
 
 -- removes cell (c,r) from cells list of spreadsheet, efectively clearing
 -- it out.
--- Note: all the error conditions check should be done in modifiyCell
+-- Note: all the error conditions check should be done in modifyCell
 removeCell :: Spreadsheet -> Char -> Int -> Spreadsheet
 removeCell s c r = s {cells = filter (\i -> not ((col i) == c && (row i) == r)) (cells s)}
 
