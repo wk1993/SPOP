@@ -69,12 +69,15 @@ getValue :: Spreadsheet -> Char -> Int -> Either String (Maybe CellVal)
 getValue s c r = if not (inRange c magic_cellMinCol magic_cellMaxCol) ||
                     not (inRange r magic_cellMinRow magic_cellMaxRow) then
                      Left "Cell address out of bounds"
-                 else if filtered_len == 1 then Right (Just (val (head filtered)))
-                    else if filtered_len == 0 then Right Nothing
-                    else error "Inconsistent spreadsheet state: more than one cell with given (col,row)"
-                 where
-                    filtered = filter (\i -> (col i) == c && (row i) == r) (cells s)
-                    filtered_len = length filtered
+                 else Right (getValueInternal s c r)
+
+getValueInternal :: Spreadsheet -> Char -> Int -> Maybe CellVal
+getValueInternal s c r = if filtered_len == 1 then Just (val (head filtered))
+                         else if filtered_len == 0 then Nothing
+                         else error "Inconsistent spreadsheet state: more than one cell with given (col,row)"
+                         where
+                             filtered = filter (\i -> (col i) == c && (row i) == r) (cells s)
+                             filtered_len = length filtered
 
 -- returns cells from rectangle (begc, begr, begc+countc, begr+countr). Doesn't calculate them.
 -- returned list is sorted in in order specified for cells (lower rows first, see definition of Ord for Cell)
@@ -84,6 +87,18 @@ getCellsRect s begc begr countc countr = sort (filter filter_fun (cells s))
                                             maxc = chr (ord begc + countc)
                                             maxr = begr+countr
                                             filter_fun = (\x -> inRange (col x) begc maxc && inRange (row x) begr maxr)
+
+getNonEmptyCountInRange :: Spreadsheet -> [(Char, Int)] -> Int
+getNonEmptyCountInRange s range = let
+                                      cell_values = map (\x -> getValue s (fst x) (snd x)) range
+                                      non_empty_cells = filter pred cell_values
+                                      pred = \x -> case x of
+                                               Right Nothing -> False
+                                               Right (Just _) -> True
+                                               _ -> error "All the cells for getNonEmptyCountInRange should be valid!"
+
+                                  in
+                                      length non_empty_cells
 
 -- calculates value from cell (c,r). For Cell without value, returns 0.0.
 -- Returns Right <value> if succeeded and Left <err_string> if error ocurred
@@ -101,7 +116,12 @@ calculateValueInternal s cv rd =
                           Just (MulFunc _range _) -> calculateFunc s (*) 1 _range rd
                           Just (AvgFunc _range _) -> case (calculateFunc s (+) 0 _range rd) of
                                                          Left err -> Left err
-                                                         Right val -> Right (val / (fromIntegral (length _range)))
+                                                         Right val -> if non_empty == 0 then
+                                                                          Left "Division by zero"
+                                                                      else
+                                                                          Right (val / fromIntegral non_empty)
+                                                                      where
+                                                                          non_empty = getNonEmptyCountInRange s _range
 
 calculateFunc :: Spreadsheet -> (Double -> Double -> Double) -> Double -> [(Char, Int)] -> Int -> Either String Double
 calculateFunc s f neutral _range rd = let
@@ -120,7 +140,7 @@ calculateFunc s f neutral _range rd = let
 
                                    in
                                        if any isErroneus range_cells_calculated then
-                                           head (dropWhile isValid range_cells_calculated)
+                                           head (dropWhile isValid range_cells_calculated) -- return first encountered error
                                        else
                                            Right (foldl f neutral (map (\(Right x) -> x) range_cells_calculated))
 
