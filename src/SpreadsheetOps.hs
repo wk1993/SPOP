@@ -130,7 +130,12 @@ calculateFunc s f neutral _range rd = let
                                                Right val -> calculateValueInternal s val (rd-1)
                                                Left err  -> Left err
 
-                                       range_cells_calculated = map map_range _range
+                                       remove_empty = \x ->
+                                           case getValue s (fst x) (snd x) of
+                                               Right Nothing -> False
+                                               _ -> True
+
+                                       range_cells_calculated = map map_range (filter remove_empty _range)
                                        isErroneus = \x -> case x of
                                                               Left _ -> True
                                                               Right _ -> False
@@ -142,6 +147,8 @@ calculateFunc s f neutral _range rd = let
                                        if any isErroneus range_cells_calculated then
                                            -- return first encountered error
                                            head (dropWhile isValid range_cells_calculated)
+                                       else if length range_cells_calculated == 0 then
+                                           Right 0.0
                                        else
                                            Right (foldl f neutral (map (\(Right x) -> x) range_cells_calculated))
 
