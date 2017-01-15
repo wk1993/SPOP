@@ -77,12 +77,9 @@ instance Ord Cell where
 
 --
 -- Spreadsheet - type representing a single spreadsheet. It contains:
--- - io_handle - a Handle, if this spreadsheet is connected with a file (i.e. was
---               opened from a file or saved to one), or Nothing
 -- - cells - a list of Cells with defined values.
 --
 
 data Spreadsheet = Spreadsheet {
-    io_handle :: Maybe Handle, -- TODO remove it?
     cells :: [Cell]
 } | None

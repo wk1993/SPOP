@@ -50,4 +50,4 @@ instance Binary Spreadsheet where
     put s = put (cells s)
 
     get = do _cells <- get
-             return Spreadsheet {io_handle = Nothing, cells = _cells}
+             return Spreadsheet {cells = _cells}

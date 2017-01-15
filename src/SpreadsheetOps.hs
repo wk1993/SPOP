@@ -26,7 +26,7 @@ magic_maxRecursionDepth = 16 :: Int
 
 -- creates an empty spreadsheet
 createSpreadsheet :: Spreadsheet
-createSpreadsheet = Spreadsheet Nothing []
+createSpreadsheet = Spreadsheet []
 
 -- opens spreadsheet from a file
 openSpreadsheet :: [Char] -> IO (Either String Spreadsheet)
