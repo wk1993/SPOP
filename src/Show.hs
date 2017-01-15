@@ -50,10 +50,6 @@ showFullCell s c r = case (val (last (getCellsRect s c r 0 0))) of
                                         Left err -> "Error: " ++ err
                                         Right val -> show val
 
-
-
---show (getValue s c r)       --"abc"
-
 trimCellValLength :: String -> String
 trimCellValLength inputStr = if length inputStr < 15 then inputStr else (take 11 inputStr) ++ "..."
 
@@ -66,6 +62,7 @@ showSpreadsheetNameOfColumns nameOfColumns = do
 findPos :: [Cell] -> Char -> [Int]
 findPos cells column = [index | (index, c) <- zip [0..] cells, column == col c]
 
+-- prints available commands
 showAvailableCommands :: IO ()
 showAvailableCommands = do 
     putStrLn ("\nAvailable commands:")

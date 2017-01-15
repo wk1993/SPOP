@@ -1,11 +1,12 @@
 module Parser (
-    parse, isSingleLetter, isValidInt, isValidCellValue
+    parse, isSingleLetter, isValidInt
 ) where
 
 import Command
 import Data.Char
 import Text.Read (readMaybe)
 
+-- parses input string typed by user and recognizes specified command
 parse :: String -> Command
 parse unparsedCommand = case unparsedCommand of
     'o':'p':'e':'n':' ':file -> OpenSpreadsheet file
@@ -22,11 +23,10 @@ parse unparsedCommand = case unparsedCommand of
     "help" -> Help
     _ -> UnknownCommand
 
+-- checks if string is a single letter
 isSingleLetter :: String -> Bool
 isSingleLetter inputString = (readMaybe ("\"" ++ inputString ++ "\"") :: Maybe String) /= Nothing && (length inputString == 1)
 
+-- checks if string represents valid int number
 isValidInt :: String -> Bool
 isValidInt inputString = (readMaybe inputString :: Maybe Int) /= Nothing
-
-isValidCellValue :: String -> Bool
-isValidCellValue inputString = True

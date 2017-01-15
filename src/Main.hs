@@ -7,12 +7,14 @@ import Show
 import SpreadsheetOps
 import CellValParser
 
+-- first, opening function in program
 main = do
     putStrLn ("Welcome to SPOP project")
     putStrLn ("Authors: Krystian Kieczka, Wiktor Kusmirek")
     putStrLn ("To print list of available commands, type 'help'")
     iterateLoop None
 
+-- loop for main program
 iterateLoop actualSpreadSheet = do
     putStr "% "
     hFlush stdout
@@ -86,11 +88,6 @@ iterateLoop actualSpreadSheet = do
             putStr "new value (leave blank to remove actual cell value): "
             hFlush stdout
             line <- getLine
-            if isValidCellValue line then 
-                putStrLn ("New value is valid...") 
-            else do
-                putStrLn ("New value is invalid...")
-                iterateLoop actualSpreadSheet
             let
                 newCellValue = evalFromString line
             putStrLn ("Modifing cell " ++ (charToString column) ++ show row ++ " with value equal to " ++ (show newCellValue) ++ " ...")
