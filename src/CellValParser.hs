@@ -66,7 +66,7 @@ rangeList = do
 
 listElement :: Parser [(Char, Int)]
 listElement = do
-                  colb <- sat (isAlpha) -- TODO make it case (in)sensitive?
+                  colb <- sat (isAlpha)
                   rowb <- many digit
                   char ':'
                   cole <- sat (isAlpha)
@@ -95,7 +95,7 @@ number :: Parser Double
 number = P (\inp -> case reads inp :: [(Double, String)] of
                         [] -> []
                         [(n, "")] -> [(n, "")]
-                        [(_, _)] -> [])  -- TODO should it behave as every other parser? (returning unconsumed inp)
+                        [(_, _)] -> [])
 
 string :: Parser String
 string = P (\inp -> [(inp, "")])

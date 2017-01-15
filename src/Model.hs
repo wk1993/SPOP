@@ -4,8 +4,6 @@ module Model (
     magic_cellMinRow, magic_cellMaxRow
 ) where
 
-import System.IO
-
 
 --
 -- CellVal - type representing a single (logical) value of a cell. It can contain
@@ -18,7 +16,7 @@ import System.IO
 -- where <range> is defined as in popular spreadsheets software: it contains semicolon
 -- separated cell descriptions which can describe a single cell (e.g. "A1") or range
 -- (e.g. "A2:B4"), e.g. "A4;B3;A8:B14;C5".
--- Function names ("sum", "avg", "mul") are case insensitive.
+-- Columns adresses are case sensitive, function names ("sum", "avg", "mul") are not.
 --
 -- Showing this data type doesn't perform any computation, use SpreadsheetOps::calculateValue
 -- to get computed value of a cell.
@@ -31,7 +29,7 @@ data CellVal = StringVal String
                | MulFunc { range :: [(Char, Int)], str :: String}
                | AvgFunc { range :: [(Char, Int)], str :: String}
 
-instance Show CellVal where -- TODO restore after debugging
+instance Show CellVal where
     show (StringVal a) = a
     show (NumVal a) = show a
     show (SumFunc _ s) = s

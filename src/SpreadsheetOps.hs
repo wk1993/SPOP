@@ -45,7 +45,7 @@ openSpreadsheet filename = do
                                                            return (Right s)
                                       ) errHandler
                                where
-                                   errHandler e = return (Left (translateIOError e)) -- TODO close handle
+                                   errHandler e = return (Left (translateIOError e))
 
 
 -- saves spreadsheet to file
@@ -57,7 +57,7 @@ saveSpreadsheet s filename = do
                                      Right _ -> return Nothing
 
 translateIOError :: IOError -> String
-translateIOError (e) = (show e) -- TODO more descriptive error messages?
+translateIOError (e) = (show e)
 
 
 -- ---------------------------------------------------------------------------
@@ -80,7 +80,7 @@ getValueInternal s c r = if filtered_len == 1 then Just (val (head filtered))
                              filtered_len = length filtered
 
 -- returns cells from rectangle (begc, begr, begc+countc, begr+countr). Doesn't calculate them.
--- returned list is sorted in in order specified for cells (lower rows first, see definition of Ord for Cell)
+-- returned list is sorted in order specified for cells (lower rows first, see definition of Ord for Cell)
 getCellsRect :: Spreadsheet -> Char -> Int -> Int -> Int -> [Cell]
 getCellsRect s begc begr countc countr = sort (filter filter_fun (cells s))
                                          where
@@ -140,14 +140,15 @@ calculateFunc s f neutral _range rd = let
 
                                    in
                                        if any isErroneus range_cells_calculated then
-                                           head (dropWhile isValid range_cells_calculated) -- return first encountered error
+                                           -- return first encountered error
+                                           head (dropWhile isValid range_cells_calculated)
                                        else
                                            Right (foldl f neutral (map (\(Right x) -> x) range_cells_calculated))
 
 -- sets value of cell (c,r) to v.
 -- if a cell already exists on spreadsheet list - modifies its value
 -- else - adds new cell to spreadsheet's cells list (at the end)
--- Note: all the error conditions check should be done in modifyCell
+-- Note: all the error conditions checks should be done in modifyCell
 setCellValue :: Spreadsheet -> Char -> Int -> CellVal -> Spreadsheet
 setCellValue s c r v = if exists then
                        -- replace existing cell with new one (containing new value)
@@ -160,16 +161,16 @@ setCellValue s c r v = if exists then
                                 else if (length filtered == 0) then False
                                 else error "Inconsistent spreadsheet state: more than one cell with given (col,row)"
 
--- removes cell (c,r) from cells list of spreadsheet, efectively clearing
--- it out.
--- Note: all the error conditions check should be done in modifyCell
+-- removes cell (c,r) from cells list of spreadsheet, efectively clearing it out
+-- Note: all the error conditions checks should be done in modifyCell
 removeCell :: Spreadsheet -> Char -> Int -> Spreadsheet
 removeCell s c r = s {cells = filter (\i -> not ((col i) == c && (row i) == r)) (cells s)}
 
 
--- remove column from spreadsheet
--- TODO test it
-removeColumn :: Spreadsheet -> Char -> Either String (IO Spreadsheet) -- TODO change to IO (Either ...)?
+-- removes column with given address from spreadsheet. Effectively, it removes
+-- all the cells from this column and moves all the cells from further columns
+-- one column to the left
+removeColumn :: Spreadsheet -> Char -> Either String (IO Spreadsheet)
 removeColumn None _ = Left "No spreadsheet. Create or open a spreadsheet first"
 removeColumn s c = if not (inRange c magic_cellMinCol magic_cellMaxCol) then
                        Left "Column address out of range"
@@ -179,8 +180,9 @@ removeColumn s c = if not (inRange c magic_cellMinCol magic_cellMaxCol) then
                        filtered = filter (\x -> (col x) /= c) (cells s)
                        moveOneLeft = \x -> if (col x) > c then (x {col = chr(ord(col x)-1)}) else x
 
--- remove row from spreadsheet
--- TODO test it
+-- removes row with given address from spreadsheet. Effectively, it removes
+-- all the cells from this row and moves all the cells from further rows
+-- one row up
 removeRow :: Spreadsheet -> Int -> Either String (IO Spreadsheet)
 removeRow None _ = Left "No spreadsheet. Create or open a spreadsheet first"
 removeRow s r = if not (inRange r magic_cellMinRow magic_cellMaxRow) then
@@ -195,8 +197,7 @@ removeRow s r = if not (inRange r magic_cellMinRow magic_cellMaxRow) then
 -- The index 'ind' indicates what address will the newly created column have,
 -- i.e. addColumn s 'B' adds a new column 'B', moving previous column 'B' and
 -- all the successors one column further to the right. If there are non-empty
--- cells in column magic_cellMaxCol, an error is thrown.
--- TODO test it
+-- cells in column magic_cellMaxCol, an error is returned.
 addColumn :: Spreadsheet -> Char -> Either String (IO Spreadsheet)
 addColumn None _ = Left "No spreadsheet. Create or open a spreadsheet first"
 addColumn s ind = if not (inRange ind magic_cellMinCol magic_cellMaxCol) then
@@ -212,8 +213,7 @@ addColumn s ind = if not (inRange ind magic_cellMinCol magic_cellMaxCol) then
 -- The index 'ind' indicates what address will the newly created row have,
 -- i.e. addRow s 3 adds a new row 3, moving previous row 3 and
 -- all the successors one row down. If there are non-empty cells in row
--- magic_cellMaxRow, an error is thrown.
--- TODO test it
+-- magic_cellMaxRow, an error is returned.
 addRow :: Spreadsheet -> Int -> Either String (IO Spreadsheet)
 addRow None _ = Left "No spreadsheet. Create or open a spreadsheet first"
 addRow s ind = if not (inRange ind magic_cellMinRow magic_cellMaxRow) then
@@ -225,7 +225,9 @@ addRow s ind = if not (inRange ind magic_cellMinRow magic_cellMaxRow) then
                    where
                        moveOneDown = \x -> if (row x) >= ind then (x {row = (row x)+1}) else x
 
--- modify cell value
+-- modifies value of a cell (c,r). If v is StringVal "" (i.e. just an empty string),
+-- it removes the cell from spreadsheet list. Otherwise, it sets a value of the cell
+-- to v.
 modifyCell :: Spreadsheet -> Char -> Int -> CellVal -> Either String (IO Spreadsheet)
 modifyCell None _ _ _ = Left "No spreadsheet. Create or open a spreadsheet first"
 modifyCell s c r v = if not (inRange c magic_cellMinCol magic_cellMaxCol) then
@@ -247,12 +249,6 @@ replaceItem (x:xs) old new = if x == old then (new : xs) else (x : replaceItem x
 
 inRange :: Ord a => a -> a -> a -> Bool
 inRange a lower upper = (a >= lower) && (a <= upper)
-
--- ---------------------------------------------------------------------------
--- Tests
--- ---------------------------------------------------------------------------
-
--- basicTest = getValue (setValue (createSpreadsheet) 'a' 1 (StringVal "abc")) 'a' 1
 
 
 
